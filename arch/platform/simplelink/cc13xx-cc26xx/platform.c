@@ -86,7 +86,7 @@
 /* Log configuration */
 #include "sys/log.h"
 #define LOG_MODULE "CC13xx/CC26xx"
-#define LOG_LEVEL LOG_LEVEL_MAIN
+#define LOG_LEVEL LOG_LEVEL_NONE
 /*---------------------------------------------------------------------------*/
 /*
  * Board-specific initialization function. This function is defined in

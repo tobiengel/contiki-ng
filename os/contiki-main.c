@@ -63,7 +63,7 @@
 /* Log configuration */
 #include "sys/log.h"
 #define LOG_MODULE "Main"
-#define LOG_LEVEL LOG_LEVEL_MAIN
+#define LOG_LEVEL LOG_LEVEL_NONE
 /*---------------------------------------------------------------------------*/
 int
 #if PLATFORM_MAIN_ACCEPTS_ARGS

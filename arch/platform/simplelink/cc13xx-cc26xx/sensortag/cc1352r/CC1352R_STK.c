@@ -786,6 +786,8 @@ const uint_least8_t NVS_count = CC1352RSTK_NVSCOUNT;
 const PIN_Config BoardGpioInitTable[] = {
 
     CC1352RSTK_PIN_RLED | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX,           /* LED initially off */
+    CC1352RSTK_PIN_GLED | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX,           /* LED initially off */
+    CC1352RSTK_PIN_BLED | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX,           /* LED initially off */
     CC1352RSTK_PIN_BTN1 | PIN_INPUT_EN | PIN_PULLUP | PIN_IRQ_BOTHEDGES | PIN_HYSTERESIS,          /* Button is active low */
     CC1352RSTK_PIN_BTN2 | PIN_INPUT_EN | PIN_PULLUP | PIN_IRQ_BOTHEDGES | PIN_HYSTERESIS,         /* Button is active low */
     CC1352STK_CAPTOUCH_INT1 | PIN_INPUT_EN | PIN_IRQ_BOTHEDGES | PIN_HYSTERESIS,         /* Button is active low */

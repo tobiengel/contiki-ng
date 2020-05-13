@@ -120,6 +120,8 @@ extern "C" {
 #define Board_PIN_LED1          CC1352RSTK_PIN_GLED
 #define Board_PIN_LED2          CC1352RSTK_PIN_BLED
 #define Board_PIN_RLED          CC1352RSTK_PIN_RLED
+#define Board_PIN_GLED          CC1352RSTK_PIN_GLED
+#define Board_PIN_BLED          CC1352RSTK_PIN_BLED
 
 
 #define Board_MPU_INT           CC1352RSTK_MPU_INT
