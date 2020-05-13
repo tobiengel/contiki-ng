@@ -53,6 +53,8 @@
 #include "rf-conf.h"
 #include "leds-arch.h"
 /*---------------------------------------------------------------------------*/
+
+
 /**
  * \name LED configurations for the dev/leds.h API. The actual LED
  *       configuration of available LEDs are done in leds-arch.h.
@@ -74,7 +76,8 @@
 
 #define BUTTON_HAL_ID_KEY_LEFT      0
 #define BUTTON_HAL_ID_KEY_RIGHT     1
-#define BUTTON_HAL_ID_REED_RELAY    2
+#define IRQ_TOUCH_INT1              2
+#define IRQ_TOUCH_INT2              3
 /** @} */
 /*---------------------------------------------------------------------------*/
 /**

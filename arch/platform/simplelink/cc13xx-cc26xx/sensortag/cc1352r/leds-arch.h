@@ -27,38 +27,35 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-/**
- * \addtogroup launchpad-peripherals
+/** \addtogroup sensortag-peripherals
  * @{
  *
  * \file
- *        Header file with board-specific RF configurations.
+ *        LED HAL definitions for the CC1350STK LEDs. Is not compatible with
+ *        the CC2650STK.
  * \author
- *        Texas Instruments <e2e.ti.com>
- * \note
- *        This file should not be included directly
+ *        Edvard Pettersen <e.pettersen@ti.com>
  */
 /*---------------------------------------------------------------------------*/
-#ifndef RF_CONF_H_
-#define RF_CONF_H_
-/*---------------------------------------------------------------------------*/
-#include "rf/rf.h"
+#ifndef LEDS_ARCH_H_
+#define LEDS_ARCH_H_
 /*---------------------------------------------------------------------------*/
 /**
- * \name  Board-specific front-end mode configurations for the 2.4 GHz path
- *        on the radio.
+ * \name LED configurations for the dev/leds.h API.
  *
- * These are the following front-end mode configurations for the
- * CC2650-LAUNCHXL board:
- *  - 2.4 GHz: differential and internal bias
- *
+ * Those values are not meant to be modified by the user
  * @{
  */
-#define RF_2_4_GHZ_CONF_FRONT_END_MODE    RF_FRONT_END_MODE_DIFFERENTIAL
-#define RF_2_4_GHZ_CONF_BIAS_MODE         RF_BIAS_MODE_INTERNAL
+#define LEDS_CONF_COUNT             3
+
+#define LEDS_CONF_RED               1
+#define LEDS_CONF_BLUE              1
+#define LEDS_CONF_GREEN             1
+
+#define LEDS_CONF_ALL               ((1 << LEDS_CONF_COUNT) - 1)
 /** @} */
 /*---------------------------------------------------------------------------*/
-#endif /* RF_CONF_H_ */
+#endif /* LEDS_ARCH_H_ */
 /*---------------------------------------------------------------------------*/
 /**
  * @}

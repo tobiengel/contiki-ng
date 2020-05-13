@@ -63,16 +63,34 @@ BUTTON_HAL_BUTTON(
   BUTTON_HAL_ID_KEY_RIGHT,      /**< Unique ID */
   true);                        /**< Negative logic */
 
-/* Reed Relay button */
+
 BUTTON_HAL_BUTTON(
-  reed_relay,                   /**< Name */
-  "Reed Relay",                 /**< Description */
-  Board_RELAY,                  /**< PIN */
+  touch_int1,                   /**< Name */
+  "Touch event 1",                 /**< Description */
+  Board_CT_INT1,       /**< PIN */
   GPIO_HAL_PIN_CFG_PULL_DOWN |
   GPIO_HAL_PIN_CFG_HYSTERESIS,  /**< Pull configuration */
-  BUTTON_HAL_ID_REED_RELAY,     /**< Unique ID */
+  IRQ_TOUCH_INT1,     /**< Unique ID */
   true);                        /**< Negative logic */
+
+BUTTON_HAL_BUTTON(
+  touch_int2,                   /**< Name */
+  "Touch event 2",                 /**< Description */
+  Board_CT_INT2,       /**< PIN */
+  GPIO_HAL_PIN_CFG_HYSTERESIS,  /**< Pull configuration */
+  IRQ_TOUCH_INT2,     /**< Unique ID */
+  false);                        /**< Negative logic */
+
+/* Reed Relay button */
+//BUTTON_HAL_BUTTON(
+//  reed_relay,                   /**< Name */
+//  "Reed Relay",                 /**< Description */
+//  Board_RELAY,                  /**< PIN */
+//  GPIO_HAL_PIN_CFG_PULL_DOWN |
+//  GPIO_HAL_PIN_CFG_HYSTERESIS,  /**< Pull configuration */
+//  BUTTON_HAL_ID_REED_RELAY,     /**< Unique ID */
+//  true);                        /**< Negative logic */
 /*---------------------------------------------------------------------------*/
-BUTTON_HAL_BUTTONS(&key_left, &key_right, &reed_relay);
+BUTTON_HAL_BUTTONS(&key_left, &key_right, &touch_int1, &touch_int2);
 /*---------------------------------------------------------------------------*/
 /** @} */
