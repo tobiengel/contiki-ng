@@ -120,6 +120,30 @@ typedef enum {
   MQTT_VHDR_CONNACK_SESSION_PRESENT = 0x1
 } mqtt_vhdr_connack_flags_t;
 
+
+mqtt_sendpacket mqtt_outqueue[MQTT_OUTQUEUE_SIZE];
+uint8_t mqtt_outqueue_put_index;
+uint8_t mqtt_outqueue_get_index;
+uint8_t mqtt_outqueue_size;
+static struct etimer dequeue_timer;
+
+mqtt_sendpacket* mqtt_getNextOutPacket(){
+    mqtt_outqueue_get_index++;
+    mqtt_outqueue_size--;
+
+    if(mqtt_outqueue_get_index >= MQTT_OUTQUEUE_SIZE) mqtt_outqueue_get_index = 0;
+    DBG("getNextOutPacket %d : %d\n", mqtt_outqueue_get_index, mqtt_outqueue_size);
+    return &(mqtt_outqueue[mqtt_outqueue_get_index]);
+}
+
+mqtt_sendpacket* mqtt_getNextQueuePacket(){
+    mqtt_outqueue_put_index++;
+    mqtt_outqueue_size++;
+    if(mqtt_outqueue_put_index >= MQTT_OUTQUEUE_SIZE) mqtt_outqueue_put_index = 0;
+    DBG("getNextQueuePacket %d : %d\n", mqtt_outqueue_get_index, mqtt_outqueue_size);
+    return &(mqtt_outqueue[mqtt_outqueue_put_index]);
+}
+
 /*---------------------------------------------------------------------------*/
 #if MQTT_311
 typedef enum {
@@ -406,7 +430,7 @@ keep_alive_callback(void *ptr)
 
   /* The flag is set when the PINGREQ has been sent */
   if(conn->waiting_for_pingresp) {
-    PRINTF("MQTT - Disconnect due to no PINGRESP from broker.\n");
+     DBG("MQTT - Disconnect due to no PINGRESP from broker.\n");
     disconnect_tcp(conn);
     return;
   }
@@ -442,7 +466,7 @@ PT_THREAD(connect_pt(struct pt *pt, struct mqtt_connection *conn))
                           conn->out_packet.remaining_length);
   if(conn->out_packet.remaining_length_enc_bytes > 4) {
     call_event(conn, MQTT_EVENT_PROTOCOL_ERROR, NULL);
-    PRINTF("MQTT - Error, remaining length > 4 bytes\n");
+    DBG("MQTT - Error, remaining length > 4 bytes\n");
     PT_EXIT(pt);
   }
 
@@ -1076,7 +1100,7 @@ tcp_input(struct tcp_socket *s,
   if((conn->in_packet.remaining_length > MQTT_INPUT_BUFF_SIZE) &&
      (conn->in_packet.fhdr & 0xF0) != MQTT_FHDR_MSG_TYPE_PUBLISH) {
 
-    PRINTF("MQTT - Error, unsupported payload size for non-PUBLISH message\n");
+      DBG("MQTT - Error, unsupported payload size for non-PUBLISH message\n");
 
     conn->in_packet.byte_counter += input_data_len;
     if(conn->in_packet.byte_counter >=
@@ -1232,11 +1256,12 @@ tcp_event(struct tcp_socket *s, void *ptr, tcp_socket_event_t event)
     break;
   }
   case TCP_SOCKET_DATA_SENT: {
-    DBG("MQTT - Got TCP_DATA_SENT\n");
+      DBG("MQTT - Got TCP_DATA_SENT\n");
 
     if(conn->socket.output_data_len == 0) {
       conn->out_buffer_sent = 1;
       conn->out_buffer_ptr = conn->out_buffer;
+      if(mqtt_outqueue > 0) process_post(&mqtt_process, mqtt_do_publish_event, conn);
     }
 
     ctimer_restart(&conn->keep_alive_timer);
@@ -1346,13 +1371,43 @@ PROCESS_THREAD(mqtt_process, ev, data)
       conn = data;
       DBG("MQTT - Got mqtt_do_publish_mqtt_event!\n");
 
-      if(conn->out_buffer_sent == 1 &&
-         conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER) {
-        PT_INIT(&conn->out_proto_thread);
-        while(conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER &&
-              publish_pt(&conn->out_proto_thread, conn) < PT_EXITED) {
-          PT_MQTT_WAIT_SEND();
-        }
+      if(mqtt_outqueue_size != 0 && conn->out_buffer_sent == 1) {
+
+          if(mqtt_outqueue_size > 1) {
+              DBG("MQTT - Set timer \n");
+              etimer_set(&dequeue_timer, 10);
+          }
+
+          mqtt_sendpacket* p = mqtt_getNextOutPacket();
+
+          conn->out_packet.mid = INCREMENT_MID(conn);
+          conn->out_packet.retain = p->retain;
+          conn->out_packet.topic = p->topic;
+          conn->out_packet.topic_length = strlen(p->topic);
+          conn->out_packet.payload = p->payload;
+          conn->out_packet.payload_size = p->payload_size;
+          conn->out_packet.qos = p->qos_level;
+          conn->out_packet.qos_state = MQTT_QOS_STATE_NO_ACK;
+
+          if(p->mid) {
+            *p->mid = conn->out_packet.mid;
+          }
+
+          DBG("MQTT - Fetched one packet from queue: %d remaining \n", mqtt_outqueue_size);
+
+
+          if(conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER) {
+            PT_INIT(&conn->out_proto_thread);
+
+            while(conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER && publish_pt(&conn->out_proto_thread, conn) < PT_EXITED) {
+              PT_MQTT_WAIT_SEND();
+            }
+          }
+
+      }
+      if(ev == PROCESS_EVENT_TIMER && data == &dequeue_timer) {
+          DBG("MQTT - timer triggered, do another publish \n");
+          process_post(&mqtt_process, mqtt_do_publish_event, conn);
       }
     }
   }
@@ -1403,6 +1458,9 @@ mqtt_register(struct mqtt_connection *conn, struct process *app_process,
   conn->app_process = app_process;
   conn->auto_reconnect = 1;
   conn->max_segment_size = max_segment_size;
+  mqtt_outqueue_put_index = 0;
+  mqtt_outqueue_get_index = 0;
+  memset(mqtt_outqueue, 0, MQTT_OUTQUEUE_SIZE*sizeof(mqtt_sendpacket));
   reset_defaults(conn);
 
   mqtt_init();
@@ -1541,32 +1599,32 @@ mqtt_publish(struct mqtt_connection *conn, uint16_t *mid, char *topic,
     return MQTT_STATUS_NOT_CONNECTED_ERROR;
   }
 
-  DBG("MQTT - Call to mqtt_publish...\n");
+  DBG("MQTT - Call to mqtt_publish...%d remaining \n", mqtt_outqueue_size);
 
-  /* Currently don't have a queue, so only one item at a time */
-  if(conn->out_queue_full) {
+  if(mqtt_outqueue_size >= MQTT_OUTQUEUE_SIZE) {
     DBG("MQTT - Not accepted!\n");
     return MQTT_STATUS_OUT_QUEUE_FULL;
   }
-  conn->out_queue_full = 1;
-  DBG("MQTT - Accepted!\n");
 
-  conn->out_packet.mid = INCREMENT_MID(conn);
-  conn->out_packet.retain = retain;
-  conn->out_packet.topic = topic;
-  conn->out_packet.topic_length = strlen(topic);
-  conn->out_packet.payload = payload;
-  conn->out_packet.payload_size = payload_size;
-  conn->out_packet.qos = qos_level;
-  conn->out_packet.qos_state = MQTT_QOS_STATE_NO_ACK;
-
-  if(mid) {
-    *mid = conn->out_packet.mid;
-  }
+  mqtt_sendpacket* p = mqtt_getNextQueuePacket();
+  DBG("MQTT - add to queue... %d items \n", mqtt_outqueue_size);
+  memset(p, 0, sizeof(mqtt_sendpacket));
+  p->conn = conn;
+  p->mid = mid;
+  p->qos_level = qos_level;
+  p->retain = retain;
+  strncpy((char*)&p->topic, topic, strlen(topic));
+  //p->topic = topic;
+  memcpy(&p->payload, payload, payload_size);
+  //p->payload = payload;
+  p->payload_size = payload_size;
 
   process_post(&mqtt_process, mqtt_do_publish_event, conn);
+
+
   return MQTT_STATUS_OK;
 }
+
 /*----------------------------------------------------------------------------*/
 void
 mqtt_set_username_password(struct mqtt_connection *conn, char *username,

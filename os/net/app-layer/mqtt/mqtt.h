@@ -252,6 +252,8 @@ struct mqtt_string {
   uint16_t length;
 };
 
+
+
 /*
  * Note that the pairing mid <-> QoS level only applies one-to-one if we only
  * allow the subscription of one topic at a time. Otherwise we will have an
@@ -408,6 +410,19 @@ struct mqtt_connection {
   uint16_t server_port;
   struct tcp_socket socket;
 };
+
+#define MQTT_OUTQUEUE_SIZE 20
+
+typedef struct mqtt_sendpacket_s {
+    struct mqtt_connection *conn;
+    char topic[30];
+    uint16_t *mid;
+    uint8_t payload[255];
+    uint32_t payload_size;
+    mqtt_qos_level_t qos_level;
+    mqtt_retain_t retain;
+} mqtt_sendpacket;
+
 /* This is the API exposed to the user. */
 /*---------------------------------------------------------------------------*/
 /**
