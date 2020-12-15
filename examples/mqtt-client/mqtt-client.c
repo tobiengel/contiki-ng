@@ -45,12 +45,16 @@
 
 #include <string.h>
 #include <strings.h>
+#include <sys/node-id.h>
+/* ... */
+
+
 /*---------------------------------------------------------------------------*/
 #define LOG_MODULE "mqtt-client"
 #ifdef MQTT_CLIENT_CONF_LOG_LEVEL
 #define LOG_LEVEL MQTT_CLIENT_CONF_LOG_LEVEL
 #else
-#define LOG_LEVEL LOG_LEVEL_NONE
+#define LOG_LEVEL LOG_LEVEL_DBG
 #endif
 /*---------------------------------------------------------------------------*/
 /* Controls whether the example will work in IBM Watson IoT platform mode */
@@ -81,7 +85,7 @@
 #ifdef MQTT_CLIENT_CONF_ORG_ID
 #define MQTT_CLIENT_ORG_ID MQTT_CLIENT_CONF_ORG_ID
 #else
-#define MQTT_CLIENT_ORG_ID "quickstart"
+#define MQTT_CLIENT_ORG_ID "aircontrol"
 #endif
 /*---------------------------------------------------------------------------*/
 /* MQTT token */
@@ -628,7 +632,14 @@ state_machine(void)
         state = STATE_ERROR;
         break;
       } else {
-        mqtt_set_username_password(&conn, MQTT_CLIENT_USERNAME,
+
+        random_init(node_id);
+        unsigned short r = random_rand();
+
+        char user[30];
+        sprintf(user, "AirControlClient%i", r);
+
+        mqtt_set_username_password(&conn, user,
                                    conf.auth_token);
       }
     }

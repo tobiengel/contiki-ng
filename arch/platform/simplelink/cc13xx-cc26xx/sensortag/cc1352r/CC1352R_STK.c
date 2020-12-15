@@ -672,6 +672,9 @@ const uint_least8_t I2S_count = CC1352RSTK_I2SCOUNT;
 #define SECTORSIZE       0x2000
 #define REGIONSIZE       (SECTORSIZE * 4)
 
+#define  TI_NVS_CONF_ENABLE 1
+
+
 #if TI_NVS_CONF_ENABLE
 
 #if TI_NVS_CONF_NVS_INTERNAL_ENABLE

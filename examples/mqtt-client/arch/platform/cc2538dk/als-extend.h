@@ -32,8 +32,9 @@
 #ifndef ALS_EXTEND_H_
 #define ALS_EXTEND_H_
 /*---------------------------------------------------------------------------*/
+#include <application.h>
+
 #include "contiki.h"
-#include "mqtt-client.h"
 /*---------------------------------------------------------------------------*/
 extern const mqtt_client_extension_t als_extend;
 /*---------------------------------------------------------------------------*/

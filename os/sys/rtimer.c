@@ -70,7 +70,7 @@ rtimer_set(struct rtimer *rtimer, rtimer_clock_t time,
 {
   int first = 0;
 
-  PRINTF("rtimer_set time %d\n", time);
+  PRINTF("rtimer_set time %d\n", (int)time);
 
   if(next_rtimer == NULL) {
     first = 1;

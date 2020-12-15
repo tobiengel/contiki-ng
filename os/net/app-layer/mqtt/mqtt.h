@@ -153,7 +153,7 @@
  * Debug configuration, this is similar but not exactly like the Debugging
  * System discussion at https://github.com/contiki-os/contiki/wiki.
  */
-#define DEBUG_MQTT 0
+#define DEBUG_MQTT 1
 
 #if DEBUG_MQTT == 1
 #define DBG(...) printf(__VA_ARGS__)
@@ -162,6 +162,8 @@
 #endif /* DEBUG */
 /*---------------------------------------------------------------------------*/
 extern process_event_t mqtt_update_event;
+
+void mqtt_clearQueue();
 
 /* Forward declaration */
 struct mqtt_connection;
@@ -416,12 +418,15 @@ struct mqtt_connection {
 typedef struct mqtt_sendpacket_s {
     struct mqtt_connection *conn;
     char topic[30];
+    uint16_t topic_length;
     uint16_t *mid;
-    uint8_t payload[255];
+    uint8_t payload[48];
     uint32_t payload_size;
     mqtt_qos_level_t qos_level;
+    mqtt_qos_state_t qos_state;
     mqtt_retain_t retain;
 } mqtt_sendpacket;
+
 
 /* This is the API exposed to the user. */
 /*---------------------------------------------------------------------------*/

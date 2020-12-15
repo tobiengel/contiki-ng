@@ -71,6 +71,7 @@ get_handle(uint8_t spi_controller)
   } else {
     return NULL;
   }
+  return NULL;
 }
 /*---------------------------------------------------------------------------*/
 static SPI_FrameFormat

@@ -29,10 +29,10 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /*---------------------------------------------------------------------------*/
+#include <application.h>
+
 #include "contiki.h"
 #include "dev/cc2538-sensors.h"
-#include "mqtt-client.h"
-
 #include <string.h>
 #include <stdio.h>
 /*---------------------------------------------------------------------------*/

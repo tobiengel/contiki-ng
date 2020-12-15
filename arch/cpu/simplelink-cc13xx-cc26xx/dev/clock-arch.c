@@ -223,7 +223,7 @@ clock_time(void)
    * is represented in fractions of a second (VALUE/2^32).
    */
   uint64_t now = AONRTCCurrent64BitValueGet();
-  clock_time_t ticks = (clock_time_t)(now / (RTC_SUBSEC_FRAC / CLOCK_SECOND));
+  volatile clock_time_t ticks = (clock_time_t)(now / (RTC_SUBSEC_FRAC / CLOCK_SECOND));
   return ticks;
 }
 /*---------------------------------------------------------------------------*/

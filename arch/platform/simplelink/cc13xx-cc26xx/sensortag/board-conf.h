@@ -54,7 +54,9 @@
 #include "leds-arch.h"
 /*---------------------------------------------------------------------------*/
 
-
+//#ifndef TI_SPI_CONF_SPI0_ENABLE
+//#define TI_SPI_CONF_SPI0_ENABLE
+//#endif
 /**
  * \name LED configurations for the dev/leds.h API. The actual LED
  *       configuration of available LEDs are done in leds-arch.h.
@@ -104,19 +106,22 @@
  * Those values are not meant to be modified by the user
  * @{
  */
-#if TI_SPI_CONF_SPI0_ENABLE
-#define EXT_FLASH_SPI_CONTROLLER      Board_SPI0
 
-#define EXT_FLASH_SPI_PIN_SCK         Board_SPI0_SCK
-#define EXT_FLASH_SPI_PIN_MOSI        Board_SPI0_MOSI
-#define EXT_FLASH_SPI_PIN_MISO        Board_SPI0_MISO
-#define EXT_FLASH_SPI_PIN_CS          Board_SPI_FLASH_CS
+#ifdef TI_SPI_CONF_SPI0_ENABLE
+
+#define EXT_FLASH_SPI_CONTROLLER      0x00
+
+#define EXT_FLASH_SPI_PIN_SCK         CC1352RSTK_SPI0_CLK
+#define EXT_FLASH_SPI_PIN_MOSI        CC1352RSTK_SPI0_MOSI
+#define EXT_FLASH_SPI_PIN_MISO        CC1352RSTK_SPI0_MISO
+#define EXT_FLASH_SPI_PIN_CS          CC1352RSTK_SPI_FLASH_CS
 
 #define EXT_FLASH_DEVICE_ID           0x14
 #define EXT_FLASH_MID                 0xC2
 
 #define EXT_FLASH_PROGRAM_PAGE_SIZE   256
 #define EXT_FLASH_ERASE_SECTOR_SIZE   4096
+
 #endif /* TI_SPI_CONF_SPI0_ENABLE */
 /** @} */
 /*---------------------------------------------------------------------------*/

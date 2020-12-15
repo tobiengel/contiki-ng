@@ -62,7 +62,7 @@
 #include <stdio.h>
 #include <string.h>
 /*---------------------------------------------------------------------------*/
-#define DEBUG 0
+#define DEBUG 1
 #if DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
 #else
@@ -142,6 +142,12 @@ mqtt_sendpacket* mqtt_getNextQueuePacket(){
     if(mqtt_outqueue_put_index >= MQTT_OUTQUEUE_SIZE) mqtt_outqueue_put_index = 0;
     DBG("getNextQueuePacket %d : %d\n", mqtt_outqueue_get_index, mqtt_outqueue_size);
     return &(mqtt_outqueue[mqtt_outqueue_put_index]);
+}
+
+void mqtt_clearQueue() {
+    mqtt_outqueue_put_index = 0;
+    mqtt_outqueue_get_index = 0;
+    memset(mqtt_outqueue, 0, MQTT_OUTQUEUE_SIZE*sizeof(mqtt_sendpacket));
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1342,68 +1348,148 @@ PROCESS_THREAD(mqtt_process, ev, data)
       }
     }
     if(ev == mqtt_do_subscribe_event) {
-      conn = data;
-      DBG("MQTT - Got mqtt_do_subscribe_mqtt_event!\n");
 
-      if(conn->out_buffer_sent == 1 &&
-         conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER) {
-        PT_INIT(&conn->out_proto_thread);
-        while(conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER &&
-              subscribe_pt(&conn->out_proto_thread, conn) < PT_EXITED) {
-          PT_MQTT_WAIT_SEND();
-        }
-      }
-    }
-    if(ev == mqtt_do_unsubscribe_event) {
-      conn = data;
-      DBG("MQTT - Got mqtt_do_unsubscribe_mqtt_event!\n");
+            conn = data;
+            DBG("MQTT - Got mqtt_do_subscribe_event!\n");
 
-      if(conn->out_buffer_sent == 1 &&
-         conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER) {
-        PT_INIT(&conn->out_proto_thread);
-        while(conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER &&
-              unsubscribe_pt(&conn->out_proto_thread, conn) < PT_EXITED) {
-          PT_MQTT_WAIT_SEND();
+            if(mqtt_outqueue_size > 0){
+
+             if(conn->out_buffer_sent == 0) {
+                 etimer_set(&dequeue_timer, 10);
+             }
+             else {
+
+                 if(mqtt_outqueue_size > 1) { //if more packets are available, ensure those get send at some point
+                     DBG("MQTT - Set timer \n");
+                     etimer_set(&dequeue_timer, 10);
+                 }
+
+                 mqtt_sendpacket* p = mqtt_getNextOutPacket();
+
+                 conn->out_packet.mid = INCREMENT_MID(conn);
+                 conn->out_packet.topic = p->topic;
+                 conn->out_packet.topic_length = strlen(p->topic);
+                 conn->out_packet.payload = p->payload;
+                 conn->out_packet.payload_size = p->payload_size;
+                 conn->out_packet.qos = p->qos_level;
+                 conn->out_packet.qos_state = p->qos_state;
+
+                 if(p->mid) {
+                   *p->mid = conn->out_packet.mid;
+                 }
+
+                 DBG("MQTT - Fetched one packet from queue: %d remaining \n", mqtt_outqueue_size);
+
+
+                 if(conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER) {
+                   PT_INIT(&conn->out_proto_thread);
+
+                   while(conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER && subscribe_pt(&conn->out_proto_thread, conn) < PT_EXITED) {
+                     PT_MQTT_WAIT_SEND();
+                   }
+                 }
+             }
+            }
         }
-      }
-    }
+        if(ev == mqtt_do_unsubscribe_event) {
+
+            conn = data;
+            DBG("MQTT - Got mqtt_do_unsubscribe_event!\n");
+
+            if(mqtt_outqueue_size > 0){
+
+             if(conn->out_buffer_sent == 0) {
+                 etimer_set(&dequeue_timer, 10);
+             }
+             else {
+
+                 if(mqtt_outqueue_size > 1) { //if more packets are available, ensure those get send at some point
+                     DBG("MQTT - Set timer \n");
+                     etimer_set(&dequeue_timer, 10);
+                 }
+
+                 mqtt_sendpacket* p = mqtt_getNextOutPacket();
+
+                 conn->out_packet.mid = INCREMENT_MID(conn);
+                 conn->out_packet.topic = p->topic;
+                 conn->out_packet.topic_length = strlen(p->topic);
+                 conn->out_packet.payload = p->payload;
+                 conn->out_packet.payload_size = p->payload_size;
+                 conn->out_packet.qos = p->qos_level;
+                 conn->out_packet.qos_state = p->qos_state;
+
+                 if(p->mid) {
+                   *p->mid = conn->out_packet.mid;
+                 }
+
+                 DBG("MQTT - Fetched one packet from queue: %d remaining \n", mqtt_outqueue_size);
+
+
+                 if(conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER) {
+                   PT_INIT(&conn->out_proto_thread);
+
+                   while(conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER && unsubscribe_pt(&conn->out_proto_thread, conn) < PT_EXITED) {
+                     PT_MQTT_WAIT_SEND();
+                   }
+                 }
+             }
+            }
+        }
+
+//          conn = data;
+//          DBG("MQTT - Got mqtt_do_unsubscribe_mqtt_event!\n");
+//
+//          if(conn->out_buffer_sent == 1 &&
+//             conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER) {
+//            PT_INIT(&conn->out_proto_thread);
+//            while(conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER &&
+//                  unsubscribe_pt(&conn->out_proto_thread, conn) < PT_EXITED) {
+//              PT_MQTT_WAIT_SEND();
+//            }
+//          }
+//        }
     if(ev == mqtt_do_publish_event) {
       conn = data;
       DBG("MQTT - Got mqtt_do_publish_mqtt_event!\n");
 
-      if(mqtt_outqueue_size != 0 && conn->out_buffer_sent == 1) {
+      if(mqtt_outqueue_size > 0){
 
-          if(mqtt_outqueue_size > 1) {
-              DBG("MQTT - Set timer \n");
+          if(conn->out_buffer_sent == 0) {
               etimer_set(&dequeue_timer, 10);
           }
+          else {
 
-          mqtt_sendpacket* p = mqtt_getNextOutPacket();
+              if(mqtt_outqueue_size > 1) { //if more packets are available, ensure those get send at some point
+                  DBG("MQTT - Set timer \n");
+                  etimer_set(&dequeue_timer, 10);
+              }
 
-          conn->out_packet.mid = INCREMENT_MID(conn);
-          conn->out_packet.retain = p->retain;
-          conn->out_packet.topic = p->topic;
-          conn->out_packet.topic_length = strlen(p->topic);
-          conn->out_packet.payload = p->payload;
-          conn->out_packet.payload_size = p->payload_size;
-          conn->out_packet.qos = p->qos_level;
-          conn->out_packet.qos_state = MQTT_QOS_STATE_NO_ACK;
+              mqtt_sendpacket* p = mqtt_getNextOutPacket();
 
-          if(p->mid) {
-            *p->mid = conn->out_packet.mid;
+              conn->out_packet.mid = INCREMENT_MID(conn);
+              conn->out_packet.retain = p->retain;
+              conn->out_packet.topic = p->topic;
+              conn->out_packet.topic_length = strlen(p->topic);
+              conn->out_packet.payload = p->payload;
+              conn->out_packet.payload_size = p->payload_size;
+              conn->out_packet.qos = p->qos_level;
+              conn->out_packet.qos_state = MQTT_QOS_STATE_NO_ACK;
+
+              if(p->mid) {
+                *p->mid = conn->out_packet.mid;
+              }
+
+              DBG("MQTT - Fetched one packet from queue: %d remaining \n", mqtt_outqueue_size);
+
+
+              if(conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER) {
+                PT_INIT(&conn->out_proto_thread);
+
+                while(conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER && publish_pt(&conn->out_proto_thread, conn) < PT_EXITED) {
+                  PT_MQTT_WAIT_SEND();
+                }
+              }
           }
-
-          DBG("MQTT - Fetched one packet from queue: %d remaining \n", mqtt_outqueue_size);
-
-
-          if(conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER) {
-            PT_INIT(&conn->out_proto_thread);
-
-            while(conn->state == MQTT_CONN_STATE_CONNECTED_TO_BROKER && publish_pt(&conn->out_proto_thread, conn) < PT_EXITED) {
-              PT_MQTT_WAIT_SEND();
-            }
-          }
-
       }
       if(ev == PROCESS_EVENT_TIMER && data == &dequeue_timer) {
           DBG("MQTT - timer triggered, do another publish \n");
@@ -1547,15 +1633,17 @@ mqtt_subscribe(struct mqtt_connection *conn, uint16_t *mid, char *topic,
   conn->out_queue_full = 1;
   DBG("MQTT - Accepted!\n");
 
-  conn->out_packet.mid = INCREMENT_MID(conn);
-  conn->out_packet.topic = topic;
-  conn->out_packet.topic_length = strlen(topic);
-  conn->out_packet.qos = qos_level;
-  conn->out_packet.qos_state = MQTT_QOS_STATE_NO_ACK;
+  mqtt_sendpacket* p = mqtt_getNextQueuePacket();
+  DBG("MQTT - add to queue... %d items \n", mqtt_outqueue_size);
+  memset(p, 0, sizeof(mqtt_sendpacket));
+  p->conn = conn;
+  p->mid = mid;
+  p->qos_level = qos_level;
+  strncpy((char*)&(p->topic), topic, strlen(topic));
 
-  if(mid) {
-    *mid = conn->out_packet.mid;
-  }
+  p->topic_length = strlen(topic);
+  p->qos_state = MQTT_QOS_STATE_NO_ACK;
+
 
   process_post(&mqtt_process, mqtt_do_subscribe_event, conn);
   return MQTT_STATUS_OK;
@@ -1577,14 +1665,17 @@ mqtt_unsubscribe(struct mqtt_connection *conn, uint16_t *mid, char *topic)
   conn->out_queue_full = 1;
   DBG("MQTT - Accepted!\n");
 
-  conn->out_packet.mid = INCREMENT_MID(conn);
-  conn->out_packet.topic = topic;
-  conn->out_packet.topic_length = strlen(topic);
-  conn->out_packet.qos_state = MQTT_QOS_STATE_NO_ACK;
 
-  if(mid) {
-    *mid = conn->out_packet.mid;
-  }
+  mqtt_sendpacket* p = mqtt_getNextQueuePacket();
+  DBG("MQTT - add to queue... %d items \n", mqtt_outqueue_size);
+  memset(p, 0, sizeof(mqtt_sendpacket));
+  p->conn = conn;
+  p->mid = mid;
+  strncpy((char*)&(p->topic), topic, strlen(topic));
+
+  p->topic_length = strlen(topic);
+  p->qos_state = MQTT_QOS_STATE_NO_ACK;
+
 
   process_post(&mqtt_process, mqtt_do_unsubscribe_event, conn);
   return MQTT_STATUS_OK;
@@ -1614,9 +1705,7 @@ mqtt_publish(struct mqtt_connection *conn, uint16_t *mid, char *topic,
   p->qos_level = qos_level;
   p->retain = retain;
   strncpy((char*)&p->topic, topic, strlen(topic));
-  //p->topic = topic;
   memcpy(&p->payload, payload, payload_size);
-  //p->payload = payload;
   p->payload_size = payload_size;
 
   process_post(&mqtt_process, mqtt_do_publish_event, conn);

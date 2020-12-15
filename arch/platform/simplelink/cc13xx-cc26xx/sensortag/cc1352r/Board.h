@@ -40,6 +40,8 @@ extern "C" {
 #include <ti/drivers/Board.h>
 #include "CC1352R_STK.h"
 
+
+
 #define Board_CC1352RSTK
 #define BOARD_STRING            "TI CC1352R SensorTag"
 

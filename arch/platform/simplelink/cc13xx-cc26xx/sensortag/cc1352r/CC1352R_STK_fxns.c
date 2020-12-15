@@ -46,6 +46,34 @@
 #include <ti/drivers/Board.h>
 
 #include "Board.h"
+/*
+ *  =============================== NVS ===============================
+ */
+
+#include <ti/drivers/NVS.h>
+#include <ti/drivers/nvs/NVSSPI25X.h>
+
+/*
+ *  NVSSPI25X External NVS flash region definitions
+ */
+
+/* DIO20, MX25R8035F SPI Flash Slave Select */
+extern const uint_least8_t          CONFIG_GPIO_0_CONST;
+#define CONFIG_GPIO_0               0
+
+extern const uint_least8_t          CONFIG_SPI_0_CONST;
+#define CONFIG_SPI_0                0
+
+extern const uint_least8_t          CONFIG_NVSEXTERNAL_CONST;
+#define CONFIG_NVSEXTERNAL          0
+
+NVS_Handle nvsHandle;
+NVS_Attrs regionAttrs;
+NVS_Params nvsParams;
+
+
+
+const uint_least8_t CONFIG_NVSEXTERNAL_CONST = CONFIG_NVSEXTERNAL;
 
 
 /*
@@ -155,4 +183,5 @@ void CC1352R1_LAUNCHXL_shutDownExtFlash(void)
 void Board_initHook()
 {
     CC1352R1_LAUNCHXL_shutDownExtFlash();
+  //  CC1352R1_LAUNCHXL_wakeUpExtFlash();
 }

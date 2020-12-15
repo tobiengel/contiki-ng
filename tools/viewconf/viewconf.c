@@ -130,6 +130,13 @@
 ##### "UIP_CONF_ND6_AUTOFILL_NBR_CACHE": _______ -> UIP_ND6_AUTOFILL_NBR_CACHE
 #endif
 
+
+#ifdef TI_NVS_CONF_ENABLE
+##### "TI_NVS_CONF_ENABLE": _______ == TI_NVS_CONF_ENABLE
+#else
+##### "TI_NVS_CONF_ENABLE": _______ -> TI_NVS_CONF_ENABLE
+#endif
+
 ##### "SICSLOWPAN_CONF_FRAG": __________________ == SICSLOWPAN_CONF_FRAG
 
 #ifdef SICSLOWPAN_CONF_COMPRESSION

@@ -359,10 +359,7 @@ uip_ds6_is_addr_onlink(uip_ipaddr_t *ipaddr)
 uip_ds6_addr_t *
 uip_ds6_addr_add(uip_ipaddr_t *ipaddr, unsigned long vlifetime, uint8_t type)
 {
-  if(uip_ds6_list_loop
-     ((uip_ds6_element_t *)uip_ds6_if.addr_list, UIP_DS6_ADDR_NB,
-      sizeof(uip_ds6_addr_t), ipaddr, 128,
-      (uip_ds6_element_t **)&locaddr) == FREESPACE) {
+  if(uip_ds6_list_loop ((uip_ds6_element_t *)uip_ds6_if.addr_list, UIP_DS6_ADDR_NB, sizeof(uip_ds6_addr_t), ipaddr, 128, (uip_ds6_element_t **)&locaddr) == FREESPACE) {
     locaddr->isused = 1;
     uip_ipaddr_copy(&locaddr->ipaddr, ipaddr);
     locaddr->type = type;

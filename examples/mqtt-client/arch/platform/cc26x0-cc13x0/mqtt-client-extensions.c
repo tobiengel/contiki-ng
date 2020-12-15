@@ -29,10 +29,10 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /*---------------------------------------------------------------------------*/
+#include <application.h>
+
 #include "contiki.h"
 #include "builtin-sensors.h"
-#include "mqtt-client.h"
-
 #include <string.h>
 /*---------------------------------------------------------------------------*/
 MQTT_CLIENT_EXTENSIONS(&builtin_sensors_batmon_temp,

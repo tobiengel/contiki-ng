@@ -50,8 +50,8 @@ extern "C" {
 
 #include "contiki-conf.h"
 #define TI_UART_CONF_ENABLE 1
-#define TI_UART_CONF_UART0_ENABLE 1
-#define TI_UART_CONF_BAUD_RATE   19200
+//#define TI_UART_CONF_UART0_ENABLE 1
+//#define TI_UART_CONF_BAUD_RATE   19200
 /* Includes */
 #include <ti/drivers/PIN.h>
 #include <ti/devices/DeviceFamily.h>
@@ -139,6 +139,10 @@ extern const PIN_Config BoardGpioInitTable[];
 #define CC1352RSTK_FLASH_CS_OFF          1
 
 /* SPI Board */
+#ifndef TI_SPI_CONF_SPI0_ENABLE
+#define TI_SPI_CONF_SPI0_ENABLE
+#endif
+
 #define CC1352RSTK_SPI0_MISO             IOID_8
 #define CC1352RSTK_SPI0_MOSI             IOID_9
 #define CC1352RSTK_SPI0_CLK              IOID_10
@@ -422,9 +426,9 @@ typedef enum CC1352RSTK_NVSName {
 #if TI_NVS_CONF_NVS_INTERNAL_ENABLE
     CC1352RSTK_NVSCC26XX0 = 0,
 #endif
-#if TI_NVS_CONF_NVS_EXTERNAL_ENABLE
+
     CC1352RSTK_NVSSPI25X0,
-#endif
+
 
     CC1352RSTK_NVSCOUNT
 } CC1352RSTK_NVSName;

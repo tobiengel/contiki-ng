@@ -67,7 +67,7 @@
  * @{
  */
 #ifndef WATCHDOG_CONF_DISABLE
-#define WATCHDOG_CONF_DISABLE               0
+#define WATCHDOG_CONF_DISABLE               1
 #endif
 
 #ifndef WATCHDOG_CONF_TIMEOUT_MS
@@ -403,7 +403,7 @@
  * \brief  Enable or disable Non-Volatile Storage (NVS) driver.
  */
 #ifndef TI_NVS_CONF_ENABLE
-#define TI_NVS_CONF_ENABLE                  0
+#define TI_NVS_CONF_ENABLE                  1
 #endif
 
 /**

@@ -29,10 +29,10 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /*---------------------------------------------------------------------------*/
+#include <application.h>
+
 #include "contiki.h"
 #include "batmon-sensor.h"
-#include "mqtt-client.h"
-
 #include <string.h>
 #include <stdio.h>
 /*---------------------------------------------------------------------------*/

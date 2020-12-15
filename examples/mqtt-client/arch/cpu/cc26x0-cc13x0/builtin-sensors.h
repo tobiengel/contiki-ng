@@ -32,8 +32,9 @@
 #ifndef BUILTIN_SENSORS_H_
 #define BUILTIN_SENSORS_H_
 /*---------------------------------------------------------------------------*/
+#include <application.h>
+
 #include "contiki.h"
-#include "mqtt-client.h"
 /*---------------------------------------------------------------------------*/
 extern const mqtt_client_extension_t builtin_sensors_batmon_temp;
 extern const mqtt_client_extension_t builtin_sensors_batmon_volt;
