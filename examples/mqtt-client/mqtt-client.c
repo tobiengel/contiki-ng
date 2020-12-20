@@ -180,7 +180,7 @@ static uint8_t state;
 #define DEFAULT_BROKER_PORT         1883
 #define DEFAULT_PUBLISH_INTERVAL    (30 * CLOCK_SECOND)
 #define DEFAULT_KEEP_ALIVE_TIMER    60
-#define DEFAULT_RSSI_MEAS_INTERVAL  (CLOCK_SECOND * 30)
+#define DEFAULT_RSSI_MEAS_INTERVAL  (CLOCK_SECOND * 900)
 /*---------------------------------------------------------------------------*/
 #define MQTT_CLIENT_SENSOR_NONE     (void *)0xFFFFFFFF
 /*---------------------------------------------------------------------------*/

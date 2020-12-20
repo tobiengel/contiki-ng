@@ -29,7 +29,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /*---------------------------------------------------------------------------*/
-#include <application.h>
+#include <EasyMQTT.h>
 
 #include "contiki.h"
 #include "dev/cc2538-sensors.h"

@@ -32,7 +32,7 @@
 #ifndef BUILTIN_SENSORS_H_
 #define BUILTIN_SENSORS_H_
 /*---------------------------------------------------------------------------*/
-#include <application.h>
+#include <EasyMQTT.h>
 
 #include "contiki.h"
 /*---------------------------------------------------------------------------*/
