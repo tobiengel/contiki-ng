@@ -42,6 +42,7 @@
 #include "gpio-hal.h"
 #include "sys/log.h"
 #include "CC1352R_STK.h"
+#include "Board.h"
 
 #include <stdint.h>
 #include <stdbool.h>

@@ -992,6 +992,7 @@ cfs_open(const char *name, int flags)
   fdp->file = find_file(name);
   if(fdp->file == NULL) {
     if((flags & (CFS_READ | CFS_WRITE)) == CFS_READ) {
+      PRINTF("Coffee:File not found!\n");
       return -1;
     }
     fdp->file = reserve(name, page_count(COFFEE_DYN_SIZE), 1, 0);
