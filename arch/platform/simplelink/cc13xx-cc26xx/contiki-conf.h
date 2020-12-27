@@ -51,6 +51,8 @@
 /*---------------------------------------------------------------------------*/
 /* Include board-specific configurations */
 #include "board-conf.h"
+
+
 /*---------------------------------------------------------------------------*/
 /* Include CPU-related configurations */
 #include "cc13xx-cc26xx-conf.h"

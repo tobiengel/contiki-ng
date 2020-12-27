@@ -1564,7 +1564,7 @@ mqtt_register(struct mqtt_connection *conn, struct process *app_process,
  */
 mqtt_status_t
 mqtt_connect(struct mqtt_connection *conn, char *host, uint16_t port,
-             uint16_t keep_alive, uint8_t clean_session)
+             int keep_alive, uint8_t clean_session)
 {
   uip_ip6addr_t ip6addr;
   uip_ipaddr_t *ipaddr;

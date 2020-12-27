@@ -138,6 +138,10 @@ extern const PIN_Config BoardGpioInitTable[];
 #define CC1352RSTK_FLASH_CS_ON           0
 #define CC1352RSTK_FLASH_CS_OFF          1
 
+#define CC1352RSTK_SPI_GYRO_CS          IOID_11
+#define CC1352RSTK_GYRO_INT             IOID_29
+#define CC1352RSTK_GYRO_FSY             IOID_28
+
 /* SPI Board */
 #ifndef TI_SPI_CONF_SPI0_ENABLE
 #define TI_SPI_CONF_SPI0_ENABLE

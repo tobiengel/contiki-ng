@@ -43,12 +43,13 @@
 #include "board-conf.h"
 #include "board-peripherals.h"
 #include "batmon-sensor.h"
+#include "ICM20948.h"
 /*---------------------------------------------------------------------------*/
 /* Exports a global symbol to be used by the sensor API */
 #if BOARD_SENSORS_ENABLE
 #define BOARD_CONF_SENSORS_ENABLE 1
 //SENSORS(&bmp_280_sensor, &tmp_007_sensor, &opt_3001_sensor, &hdc_1000_sensor, &mpu_9250_sensor,);
-SENSORS(&bmp_280_sensor, &tmp_007_sensor, &opt_3001_sensor, &hdc_1000_sensor, &mpu_9250_sensor, &batmon_sensor);
+SENSORS(&opt_3001_sensor,&batmon_sensor); //, &ICM20948_sensor
 #else
 #error "Sensors not defined"
 #endif

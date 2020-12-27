@@ -468,7 +468,7 @@ mqtt_status_t mqtt_register(struct mqtt_connection *conn,
 mqtt_status_t mqtt_connect(struct mqtt_connection *conn,
                            char *host,
                            uint16_t port,
-                           uint16_t keep_alive,
+                           int keep_alive,
                            uint8_t clean_session);
 /*---------------------------------------------------------------------------*/
 /**

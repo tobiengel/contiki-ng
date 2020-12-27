@@ -530,6 +530,9 @@ GPIO_PinConfig gpioPinConfigs[] = {
     /* CapTIvate Interrupts */
     GPIOCC26XX_DIO_22 | GPIO_DO_NOT_CONFIG,
     GPIOCC26XX_DIO_24 | GPIO_DO_NOT_CONFIG,
+
+    /* SPI Gyro CSN */
+    GPIOCC26XX_DIO_11 | GPIO_DO_NOT_CONFIG,
 };
 
 
@@ -549,6 +552,7 @@ GPIO_CallbackFxn gpioCallbackFunctions[] = {
     NULL,  /*  LED 0 */
     NULL,  /*  LED 1 */
     NULL,  /*  LED 2 */
+    NULL,   /* SPI */
     NULL,   /* SPI */
     NULL,
     NULL
@@ -796,6 +800,9 @@ const PIN_Config BoardGpioInitTable[] = {
     CC1352STK_CAPTOUCH_INT1 | PIN_INPUT_EN | PIN_IRQ_BOTHEDGES | PIN_HYSTERESIS,         /* Button is active low */
     CC1352STK_CAPTOUCH_INT2 | PIN_INPUT_EN | PIN_IRQ_BOTHEDGES | PIN_HYSTERESIS,         /* Button is active low */
     CC1352RSTK_SPI_FLASH_CS | PIN_GPIO_OUTPUT_EN | PIN_GPIO_HIGH | PIN_PUSHPULL | PIN_DRVSTR_MIN,  /* External flash chip select */
+    CC1352RSTK_SPI_GYRO_CS  | PIN_GPIO_OUTPUT_EN | PIN_GPIO_HIGH | PIN_PUSHPULL | PIN_DRVSTR_MIN,
+    CC1352RSTK_GYRO_INT | PIN_INPUT_EN | PIN_PULLUP | PIN_IRQ_BOTHEDGES | PIN_HYSTERESIS,
+    CC1352RSTK_GYRO_FSY | PIN_INPUT_EN | PIN_PULLUP | PIN_IRQ_BOTHEDGES | PIN_HYSTERESIS,
     CC1352RSTK_UART_TX | PIN_GPIO_OUTPUT_EN | PIN_GPIO_HIGH | PIN_PUSHPULL,                        /* DevPack */
     CC1352RSTK_UART_RX | PIN_INPUT_EN | PIN_PULLDOWN,                                              /* DevPack */
     CC1352RSTK_SPI0_MOSI | PIN_INPUT_EN | PIN_PULLDOWN,                                            /* SPI master out - slave in */

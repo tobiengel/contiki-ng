@@ -10,5 +10,6 @@ BOARD_SOURCEFILES += bmp-280-sensor.c hdc-1000-sensor.c
 BOARD_SOURCEFILES += mpu-9250-sensor.c opt-3001-sensor.c
 BOARD_SOURCEFILES += tmp-007-sensor.c 
 BOARD_SOURCEFILES += xmem.c
+#BOARD_SOURCEFILES += ICM20948.c
 
 TARGET_FAMILY_DIRS += sensortag
